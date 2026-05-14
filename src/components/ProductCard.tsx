@@ -58,17 +58,25 @@ export function ProductCard({ produto }: { produto: Produto }) {
           )}
         </div>
 
-        <a
-          href={whatsappLink(productInquiryMessage(produto))}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-auto pt-3"
-        >
-          <Button variant="whatsapp" className="w-full" disabled={semEstoque}>
-            <MessageCircle className="size-4" />
-            Chamar no WhatsApp
-          </Button>
-        </a>
+        <div className="mt-auto flex flex-col gap-2 pt-3">
+          {produto.link && (
+            <a href={produto.link} target="_blank" rel="noreferrer">
+              <Button variant="outline" className="w-full">
+                Ver detalhes
+              </Button>
+            </a>
+          )}
+          <a
+            href={whatsappLink(productInquiryMessage(produto))}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button variant="whatsapp" className="w-full" disabled={semEstoque}>
+              <MessageCircle className="size-4" />
+              Chamar no WhatsApp
+            </Button>
+          </a>
+        </div>
       </div>
     </article>
   );

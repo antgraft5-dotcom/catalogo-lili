@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Minus, LogOut, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Minus, LogOut, Image as ImageIcon, Loader2, Database as DbIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -40,12 +40,13 @@ type FormState = {
   preco_promocional: string;
   estoque: string;
   imagem: string;
+  link: string;
   ativo: boolean;
 };
 
 const empty: FormState = {
   nome: "", descricao: "", categoria: "outros", preco: "0",
-  promocao: false, preco_promocional: "", estoque: "0", imagem: "", ativo: true,
+  promocao: false, preco_promocional: "", estoque: "0", imagem: "", link: "", ativo: true,
 };
 
 function AdminPage() {
@@ -102,6 +103,43 @@ function AdminPage() {
     setConfirmDel(null);
   }
 
+  async function gerarDadosDeTeste() {
+    const confirm = window.confirm("Isso vai adicionar 20 produtos de teste ao catálogo. Deseja continuar?");
+    if (!confirm) return;
+
+    const itens: Omit<Produto, "id" | "created_at" | "updated_at">[] = [
+      { nome: 'Cimento CP II-32 50kg', descricao: 'Cimento Portland composto, ideal para obras em geral.', categoria: 'cimento', preco: 32.90, promocao: false, preco_promocional: null, estoque: 150, ativo: true, imagem: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800&q=80', link: '' },
+      { nome: 'Tijolo Cerâmico 8 Furos', descricao: 'Tijolo de alta resistência para alvenaria.', categoria: 'tijolos', preco: 1.20, promocao: true, preco_promocional: 0.95, estoque: 5000, ativo: true, imagem: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=80', link: '' },
+      { nome: 'Areia Lavada Fina (m³)', descricao: 'Areia ideal para reboco e acabamentos finos.', categoria: 'areia', preco: 85.00, promocao: false, preco_promocional: null, estoque: 20, ativo: true, imagem: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?w=800&q=80', link: '' },
+      { nome: 'Piso Cerâmico 60x60', descricao: 'Piso Brilhante, classe A, ideal para áreas internas.', categoria: 'acabamento', preco: 45.90, promocao: true, preco_promocional: 39.90, estoque: 200, ativo: true, imagem: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80', link: '' },
+      { nome: 'Martelo de Unha 27mm', descricao: 'Martelo de aço forjado com cabo emborrachado.', categoria: 'ferramentas', preco: 25.00, promocao: false, preco_promocional: null, estoque: 15, ativo: true, imagem: 'https://images.unsplash.com/photo-1586864387917-f539470747a1?w=800&q=80', link: '' },
+      { nome: 'Tubo PVC 100mm 6m', descricao: 'Tubo para esgoto predial reforçado.', categoria: 'hidraulica', preco: 58.00, promocao: false, preco_promocional: null, estoque: 30, ativo: true, imagem: 'https://images.unsplash.com/photo-1590013330462-094d296b864d?w=800&q=80', link: '' },
+      { nome: 'Cabo Flexível 2,5mm 100m', descricao: 'Cabo elétrico de alta qualidade, 750V.', categoria: 'eletrica', preco: 180.00, promocao: true, preco_promocional: 165.00, estoque: 10, ativo: true, imagem: 'https://images.unsplash.com/photo-1558434088-293309579997?w=800&q=80', link: '' },
+      { nome: 'Argamassa AC-I 20kg', descricao: 'Argamassa para assentamento de cerâmicas internas.', categoria: 'acabamento', preco: 12.50, promocao: false, preco_promocional: null, estoque: 80, ativo: true, imagem: 'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=800&q=80', link: '' },
+      { nome: 'Furadeira de Impacto 550W', descricao: 'Furadeira potente para concreto e madeira.', categoria: 'ferramentas', preco: 199.00, promocao: true, preco_promocional: 179.00, estoque: 5, ativo: true, imagem: 'https://images.unsplash.com/photo-1504148455328-4972fbb2d212?w=800&q=80', link: '' },
+      { nome: 'Vaso Sanitário com Caixa', descricao: 'Kit completo com assento e fixação.', categoria: 'hidraulica', preco: 350.00, promocao: false, preco_promocional: null, estoque: 8, ativo: true, imagem: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=800&q=80', link: '' },
+      { nome: 'Lâmpada LED 9W', descricao: 'Lâmpada bivolt, luz branca fria.', categoria: 'eletrica', preco: 9.90, promocao: false, preco_promocional: null, estoque: 100, ativo: true, imagem: 'https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&q=80', link: '' },
+      { nome: 'Torneira Cozinha Bica Móvel', descricao: 'Torneira cromada de alta durabilidade.', categoria: 'hidraulica', preco: 45.00, promocao: true, preco_promocional: 38.00, estoque: 20, ativo: true, imagem: 'https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&q=80', link: '' },
+      { nome: 'Carrinho de Mão 60L', descricao: 'Carrinho reforçado com caçamba de aço.', categoria: 'ferramentas', preco: 145.00, promocao: false, preco_promocional: null, estoque: 12, ativo: true, imagem: 'https://images.unsplash.com/photo-1616035987085-780cc8126b42?w=800&q=80', link: '' },
+      { nome: 'Tinta Acrílica Branca 18L', descricao: 'Tinta fosca de alto rendimento para paredes.', categoria: 'acabamento', preco: 180.00, promocao: true, preco_promocional: 155.00, estoque: 15, ativo: true, imagem: 'https://images.unsplash.com/photo-1589939705384-5185138a19af?w=800&q=80', link: '' },
+      { nome: 'Brita nº 1 (m³)', descricao: 'Pedra britada ideal para concreto.', categoria: 'areia', preco: 95.00, promocao: false, preco_promocional: null, estoque: 10, ativo: true, imagem: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80', link: '' },
+      { nome: 'Disjuntor Monofásico 20A', descricao: 'Proteção para circuitos elétricos.', categoria: 'eletrica', preco: 15.00, promocao: false, preco_promocional: null, estoque: 50, ativo: true, imagem: 'https://images.unsplash.com/photo-1558434088-293309579997?w=800&q=80', link: '' },
+      { nome: 'Chave de Fenda Kit 6 peças', descricao: 'Jogo de chaves em cromo vanádio.', categoria: 'ferramentas', preco: 35.00, promocao: false, preco_promocional: null, estoque: 25, ativo: true, imagem: 'https://images.unsplash.com/photo-1530124560677-bdaeaeb9fc81?w=800&q=80', link: '' },
+      { nome: 'Registro de Gaveta 3/4', descricao: 'Registro bruto em metal.', categoria: 'hidraulica', preco: 42.00, promocao: false, preco_promocional: null, estoque: 30, ativo: true, imagem: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=800&q=80', link: '' },
+      { nome: 'Rejunte Flexível 1kg', descricao: 'Rejunte para pisos e azulejos.', categoria: 'acabamento', preco: 8.50, promocao: false, preco_promocional: null, estoque: 60, ativo: true, imagem: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80', link: '' },
+      { nome: 'Escada Alumínio 5 Degraus', descricao: 'Escada doméstica leve e resistente.', categoria: 'ferramentas', preco: 120.00, promocao: true, preco_promocional: 99.00, estoque: 6, ativo: true, imagem: 'https://images.unsplash.com/photo-1504148455328-4972fbb2d212?w=800&q=80', link: '' },
+    ];
+
+    try {
+      const { error } = await supabase.from("produtos").insert(itens);
+      if (error) throw error;
+      toast.success("20 produtos de teste adicionados!");
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao gerar dados");
+    }
+  }
+
   if (loading || !user || !isAdmin) {
     return (
       <div className="grid min-h-screen place-items-center">
@@ -142,9 +180,14 @@ function AdminPage() {
 
         <div className="mb-6 flex items-center justify-between">
           <h1 className="font-display text-2xl font-bold text-secondary">Produtos</h1>
-          <Button variant="hero" onClick={() => setForm({ ...empty })}>
-            <Plus className="size-4" /> Adicionar produto
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={gerarDadosDeTeste}>
+              <DbIcon className="size-4" /> Gerar Dados
+            </Button>
+            <Button variant="hero" onClick={() => setForm({ ...empty })}>
+              <Plus className="size-4" /> Adicionar produto
+            </Button>
+          </div>
         </div>
 
         {/* Lista */}
@@ -198,9 +241,9 @@ function AdminPage() {
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => setForm({
                       id: p.id, nome: p.nome, descricao: p.descricao ?? "",
-                      categoria: p.categoria, preco: String(p.preco), promocao: p.promocao,
+                      categoria: p.categoria ?? "outros", preco: String(p.preco), promocao: p.promocao ?? false,
                       preco_promocional: p.preco_promocional ? String(p.preco_promocional) : "",
-                      estoque: String(p.estoque), imagem: p.imagem ?? "", ativo: p.ativo,
+                      estoque: String(p.estoque), imagem: p.imagem ?? "", link: p.link ?? "", ativo: p.ativo ?? true,
                     })}>
                       <Pencil className="size-4" /> Editar
                     </Button>
@@ -292,6 +335,7 @@ function ProductForm({
         preco_promocional: form.promocao && form.preco_promocional ? parseFloat(form.preco_promocional) : null,
         estoque: parseInt(form.estoque) || 0,
         imagem: form.imagem || null,
+        link: form.link || null,
         ativo: form.ativo,
       };
       if (form.id) {
@@ -323,6 +367,11 @@ function ProductForm({
           <div>
             <Label htmlFor="nome">Nome *</Label>
             <Input id="nome" required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+          </div>
+
+          <div>
+            <Label htmlFor="link">Link (Mercado Livre, WhatsApp, etc.)</Label>
+            <Input id="link" placeholder="https://..." value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
           </div>
 
           <div>

@@ -1,9 +1,9 @@
 import type { Database } from "@/integrations/supabase/types";
 
 export type Produto = Database["public"]["Tables"]["produtos"]["Row"];
-export type Categoria = Database["public"]["Enums"]["categoria_produto"];
+export type Categoria = string;
 
-export const CATEGORIAS: { value: Categoria; label: string; icon: string }[] = [
+export const CATEGORIAS: { value: string; label: string; icon: string }[] = [
   { value: "cimento", label: "Cimento", icon: "🧱" },
   { value: "tijolos", label: "Tijolos", icon: "🧱" },
   { value: "areia", label: "Areia", icon: "🏖️" },

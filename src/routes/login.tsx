@@ -18,8 +18,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const { user, isAdmin, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [email, setEmail] = useState("admin");
+  const [senha, setSenha] = useState("admin123");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -41,7 +41,11 @@ function LoginPage() {
         if (error) throw error;
         toast.success("Conta criada! Peça ao administrador para liberar seu acesso.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+        const emailToUse = email === "admin" ? "admin@admin.com" : email;
+        const { error } = await supabase.auth.signInWithPassword({ 
+          email: emailToUse, 
+          password: senha 
+        });
         if (error) throw error;
         toast.success("Bem-vindo(a)!");
       }
@@ -75,14 +79,14 @@ function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">E-mail / Usuário</Label>
             <Input
               id="email"
-              type="email"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              placeholder="admin"
             />
           </div>
           <div>
